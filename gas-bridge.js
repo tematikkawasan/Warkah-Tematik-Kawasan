@@ -29,8 +29,11 @@ window.GAS_URL = 'https://script.google.com/macros/s/AKfycbwGgn8kMH6F5Rsm-XSBbZB
           if (onOk) onOk(res.data);
         } else {
           if (res.code === 'SESSION_EXPIRED' && typeof window.forceLogout === 'function') {
+            if (window.__sesiHabis) return;   // cukup satu alert
+            window.__sesiHabis = true;
+
             alert('Sesi habis, silakan login ulang.');
-            window.forceLogout();
+            window.forceLogout(true);;
             return;
           }
           var err = new Error(res.error || 'Terjadi kesalahan server');
