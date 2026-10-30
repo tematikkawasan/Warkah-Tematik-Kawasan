@@ -4345,7 +4345,7 @@ function login() {
       document.body.classList.remove('logged-out');
 
       CURRENT_USER = res.user;
-      localStorage.setItem('CURRENT_USER', JSON.stringify(res.user));
+      sessionStorage.setItem('CURRENT_USER', JSON.stringify(res.user));
       sessionStorage.setItem('LOGGED_IN', 'true');
 
       document.getElementById('userName').innerText = res.user.nama;
@@ -4406,7 +4406,7 @@ function autoLogin() {
     return;
   }
 
-  const savedUser = localStorage.getItem('CURRENT_USER');
+  const savedUser = sessionStorage.getItem('CURRENT_USER');
   if (!savedUser) {
     showLogin();
     return;
@@ -4455,7 +4455,7 @@ function logout() {
 
   // 🔥 HAPUS SEMUA JEJAK LOGIN
   CURRENT_USER = null;
-  localStorage.clear();        // hapus user
+  sessionStorage.clear();        // hapus user
   sessionStorage.clear();      // hapus login flag
   
   stopIdleTimer();
@@ -4474,7 +4474,7 @@ function forceLogout() {
   }
 
   CURRENT_USER = null;
-  localStorage.clear();
+  sessionStorage.clear();
   sessionStorage.clear();
 
   stopIdleTimer();
