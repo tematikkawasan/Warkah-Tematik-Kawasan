@@ -4345,6 +4345,7 @@ function login() {
       document.body.classList.remove('logged-out');
 
       CURRENT_USER = res.user;
+      window.__sesiHabis = false;
       sessionStorage.setItem('CURRENT_USER', JSON.stringify(res.user));
       sessionStorage.setItem('LOGGED_IN', 'true');
 
@@ -4462,9 +4463,9 @@ function logout() {
   showLogin();                 // tampilkan login bersih
 }
 
-function forceLogout() {
-  // log aktivitas (optional)
-  if (CURRENT_USER && CURRENT_USER.username) {
+function forceLogout(expired) {
+  // log aktivitas dilewati bila token sudah mati
+  if (!expired && CURRENT_USER && CURRENT_USER.username) {
     google.script.run.logActivity(
       CURRENT_USER.username,
       'AUTO_LOGOUT',
@@ -5679,16 +5680,14 @@ let IDLE_LIMIT = 10 * 60; // 10 menit (detik)
 let idleSeconds = IDLE_LIMIT;
 let idleInterval = null;
 
+let idleDeadline = 0;
+
 function startIdleTimer() {
-  stopIdleTimer(); // pastikan tidak double
-
-  idleSeconds = IDLE_LIMIT;
-  updateIdleUI();
-
+  stopIdleTimer();
+  resetIdleTimer();
   idleInterval = setInterval(() => {
-    idleSeconds--;
+    idleSeconds = Math.max(0, Math.round((idleDeadline - Date.now()) / 1000));
     updateIdleUI();
-
     if (idleSeconds <= 0) {
       stopIdleTimer();
       autoLogout();
@@ -5696,17 +5695,12 @@ function startIdleTimer() {
   }, 1000);
 }
 
-function stopIdleTimer() {
-  if (idleInterval) {
-    clearInterval(idleInterval);
-    idleInterval = null;
-  }
-}
-
 function resetIdleTimer() {
+  idleDeadline = Date.now() + IDLE_LIMIT * 1000;
   idleSeconds = IDLE_LIMIT;
   updateIdleUI();
 }
+
 
 function updateIdleUI() {
   const el = document.getElementById('idleTimer');
