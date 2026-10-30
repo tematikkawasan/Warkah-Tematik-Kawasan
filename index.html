@@ -4961,6 +4961,14 @@ function renderExtraMetrics() {
   try {
     if (typeof CURRENT_BERKAS_FILTER !== 'undefined' && CURRENT_BERKAS_FILTER !== 'all') return;
 
+    // Angka utama dihitung dari daftar berkas (tidak bergantung getDashboardSummary)
+    const total = LAST_BERKAS.length;
+    const selesai = LAST_BERKAS.filter(d => d.status === 'Selesai').length;
+    const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    setTxt('dbTotal', total);
+    setTxt('dbProses', total - selesai);
+    setTxt('dbSelesai', selesai);
+
     const avgEl = document.getElementById('dbAvg');
     if (avgEl) {
       const avg = LAST_BERKAS.length
@@ -5570,9 +5578,13 @@ function updateTotalProgress(percent) {
 function loadDashboard() {
   google.script.run
     .withSuccessHandler(data => {
-      document.getElementById('dbTotal').innerText = data.total;
-      document.getElementById('dbProses').innerText = data.proses;
-      document.getElementById('dbSelesai').innerText = data.selesai;
+      if (!data) return;  // biarkan angka dari daftar berkas
+      document.getElementById('dbTotal').innerText = Number(data.total) || 0;
+      document.getElementById('dbProses').innerText = Number(data.proses) || 0;
+      document.getElementById('dbSelesai').innerText = Number(data.selesai) || 0;
+    })
+    .withFailureHandler(err => {
+      console.warn('getDashboardSummary gagal, pakai hitungan dari daftar berkas:', err && err.message);
     })
     .getDashboardSummary();
 }
