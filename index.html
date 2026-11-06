@@ -4315,6 +4315,26 @@ canvas {
   </div>
 </div>
 
+<div id="aiBappModal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Buat BAPP (AI)</h3>
+      <span class="modal-close" onclick="closeAiBapp()">✕</span>
+    </div>
+    <div class="modal-body">
+      <div class="form-group full">
+        <label>Link Google Docs BA Ekspose Akhir</label>
+        <input id="aiBaDocUrl" placeholder="https://docs.google.com/document/d/...">
+      </div>
+      <p style="margin:10px 0 0;font-size:12px;opacity:.75">Isi Poin C disalin persis (format &amp; numbering utuh) ke Hasil Pelaksanaan. Data lain diisi AI dari dokumen berkas. Kosongkan jika BA Akhir yang diupload sudah berupa Google Docs.</p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeAiBapp()">Batal</button>
+      <button class="btn-primary" onclick="kirimAiBapp()">Generate</button>
+    </div>
+  </div>
+</div>
+
 <div id="aiResultModal" class="modal hidden">
   <div class="modal-box">
     <div class="modal-header">
@@ -6249,14 +6269,25 @@ var AI_CURRENT_ID = '';
 function buatOtomatis(jenis, id) {
   if (!id) { alert('ID berkas tidak ditemukan'); return; }
   AI_CURRENT_ID = id;
-  var info = jenis === 'BAPP'
-    ? 'AI akan membuat BAPP otomatis. Hasil Pelaksanaan diambil dari Poin C BA Ekspose Akhir.'
-    : 'AI akan membaca dokumen berkas lalu membuat BAST otomatis.';
-  if (!confirm(info + ' Proses ±30-60 detik. Lanjut?')) return;
-  jalankanOtomatis(jenis);
+  if (jenis === 'BAPP') {
+    document.getElementById('aiBappModal').classList.remove('hidden');
+    return;
+  }
+  if (!confirm('AI akan membaca dokumen berkas lalu membuat BAST otomatis. Proses ±30-60 detik. Lanjut?')) return;
+  jalankanOtomatis('BAST', {});
 }
 
-function jalankanOtomatis(jenis) {
+function closeAiBapp() {
+  document.getElementById('aiBappModal').classList.add('hidden');
+}
+
+function kirimAiBapp() {
+  var opts = { baDocUrl: document.getElementById('aiBaDocUrl').value.trim() };
+  closeAiBapp();
+  jalankanOtomatis('BAPP', opts);
+}
+
+function jalankanOtomatis(jenis, opts) {
   var btn = document.getElementById(jenis === 'BAST' ? 'btnAiBAST' : 'btnAiBAPP');
   var oldHtml = btn ? btn.innerHTML : '';
   if (btn) { btn.disabled = true; btn.textContent = '⏳ AI membuat ' + jenis + '...'; }
@@ -6268,7 +6299,7 @@ function jalankanOtomatis(jenis) {
     .withFailureHandler(function (err) { done(); alert('Gagal: ' + (err && err.message ? err.message : err)); });
 
   if (jenis === 'BAST') run.generateBASTOtomatis(AI_CURRENT_ID, user);
-  else run.generateBAPPOtomatis(AI_CURRENT_ID, user);
+  else run.generateBAPPOtomatis(AI_CURRENT_ID, user, opts || {});
 }
 
 function aiEsc(t) {
