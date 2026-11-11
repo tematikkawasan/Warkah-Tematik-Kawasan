@@ -2356,6 +2356,13 @@ body.logged-out {
     .sb-scrim.show { display:block; }
     .sb-mtoggle { display:inline-grid; }
   }
+
+  .greeting {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text, #1f2937);
+  margin-bottom: 2px;
+}
 </style>
 
 <!--
@@ -3621,6 +3628,8 @@ canvas {
         <h2 id="dashboard" class="page-title">Dashboard warkah</h2>
         <p class="page-intro" id="pageIntro">Pantau permohonan, kelengkapan dokumen, dan jatuh tempo warkah dalam satu ruang kerja.</p>
       </div>
+      
+      <div id="greeting" class="greeting"></div>
 
       <div class="page-head-side">
         <div id="todayDate" class="today-date"></div>
@@ -4431,6 +4440,23 @@ function updateTodayDate() {
 
   el.innerText = `${hari}, ${tanggal}`;
 }
+  function updateGreeting() {
+  const el = document.getElementById('greeting');
+  if (!el || !CURRENT_USER) return;
+
+  const jam = new Date().getHours();
+  let waktu;
+  if (jam >= 4 && jam < 11)       waktu = 'Pagi';
+  else if (jam >= 11 && jam < 15) waktu = 'Siang';
+  else if (jam >= 15 && jam < 18) waktu = 'Sore';
+  else                            waktu = 'Malam';
+
+  const nama = (CURRENT_USER.nama || '').split(' ')[0]; // nama depan saja
+  el.innerText = `Selamat ${waktu}, ${nama}!`;
+}
+
+// ganti otomatis kalau aplikasi dibiarkan terbuka (cek tiap menit)
+setInterval(updateGreeting, 60 * 1000);
 
 
 function autoLogin() {
