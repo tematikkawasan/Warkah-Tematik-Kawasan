@@ -6492,223 +6492,209 @@ function printAllReport() {
       // Kelompokkan
       const selesai = data.filter(d => d.pct === 100);
       const proses  = data.filter(d => d.pct < 100);
+      const rataPct = Math.round(data.reduce((s, d) => s + (Number(d.pct) || 0), 0) / data.length);
+
+      const esc = v => String(v == null ? '' : v)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
       // === BARIS TABEL ===
       function buildRows(list) {
-        if (!list.length) return `<tr><td colspan="7" style="text-align:center;color:#888">Tidak ada data</td></tr>`;
+        if (!list.length) return `<tr><td colspan="6" class="empty">Tidak ada berkas pada kelompok ini.</td></tr>`;
 
         return list.map((d, idx) => {
-          // Dokumen belum upload
-          const missing = d.dokumen
-            .filter(dok => dok.upload === 'Belum Upload')
-            .map(dok => `<li>${dok.no}. ${dok.label}</li>`)
-            .join('');
+          const belum = d.dokumen.filter(dok => dok.upload === 'Belum Upload');
+          const missingHtml = belum.length
+            ? `<div class="chips">${belum.map(dok =>
+                `<span class="chip"><b>${esc(dok.no)}</b>${esc(dok.label)}</span>`).join('')}</div>
+               <div class="chip-count">${belum.length} dokumen belum diunggah</div>`
+            : `<span class="chip chip-ok">Dokumen lengkap</span>`;
 
-          const missingHtml = missing
-            ? `<ul style="margin:4px 0 0 14px;padding:0;color:#dc2626;font-size:11px">${missing}</ul>`
-            : `<span style="color:#16a34a;font-weight:600">✅ Lengkap</span>`;
-
-          const barColor = d.pct === 100 ? '#16a34a'
-                         : d.pct >= 50   ? '#f59e0b'
-                         : '#ef4444';
+          const tone = d.pct === 100 ? 'ok' : d.pct >= 50 ? 'mid' : 'low';
 
           return `
             <tr>
-              <td style="text-align:center">${idx + 1}</td>
-              <td><b>${d.id}</b></td>
-              <td>${d.namaPerusahaan}</td>
-              <td>${d.namaPemohon}</td>
+              <td class="c-no">${idx + 1}</td>
+              <td class="c-id">${esc(d.id)}</td>
               <td>
-                <div style="background:#e5e7eb;border-radius:999px;overflow:hidden;height:14px;min-width:80px">
-                  <div style="width:${d.pct}%;height:100%;background:${barColor};display:flex;align-items:center;justify-content:center;">
-                    <span style="font-size:10px;font-weight:700;color:white">${d.pct}%</span>
-                  </div>
+                <div class="perusahaan">${esc(d.namaPerusahaan)}</div>
+                <div class="pemohon">${esc(d.namaPemohon)}</div>
+              </td>
+              <td>
+                <div class="prog prog-${tone}">
+                  <div class="prog-bar"><span style="width:${d.pct}%"></span></div>
+                  <div class="prog-num">${d.pct}%</div>
                 </div>
               </td>
-              <td style="text-align:center">
-                <span style="background:${d.pct===100?'#dcfce7':'#fff7ed'};
-                             color:${d.pct===100?'#16a34a':'#ea580c'};
-                             padding:3px 10px;border-radius:999px;
-                             font-size:11px;font-weight:700">
-                  ${d.pct === 100 ? '✅ Selesai' : '🔄 Proses'}
-                </span>
-              </td>
+              <td><span class="pill pill-${d.pct === 100 ? 'ok' : 'run'}">${d.pct === 100 ? 'Selesai' : 'Proses'}</span></td>
               <td>${missingHtml}</td>
             </tr>`;
         }).join('');
       }
 
-      const tanggalCetak = new Date().toLocaleDateString('id-ID', {
+      const thead = `
+        <thead>
+          <tr>
+            <th style="width:28px">No</th>
+            <th style="width:82px">ID</th>
+            <th style="width:190px">Perusahaan / Pemohon</th>
+            <th style="width:96px">Progress</th>
+            <th style="width:64px">Status</th>
+            <th>Dokumen belum diunggah</th>
+          </tr>
+        </thead>`;
+
+      const now = new Date();
+      const tanggalCetak = now.toLocaleDateString('id-ID', {
         weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
       });
+      const jamCetak = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+      const pencetak = (typeof CURRENT_USER !== 'undefined' && CURRENT_USER && CURRENT_USER.nama) ? CURRENT_USER.nama : '-';
 
       const html = `
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
+  <meta charset="UTF-8">
   <title>Report Semua Perusahaan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; }
+    :root {
+      --ink:#17263a; --muted:#58677a; --line:#d6e0e9; --wash:#f5f7f8;
+      --blue:#2463a6; --blue-wash:#e5f0fa; --teal:#127d77; --teal-wash:#dcf3ed;
+      --violet:#7354a5; --amber:#a56b13; --amber-wash:#fdefcf;
+      --clay:#c75b45; --red:#a23c35; --red-wash:#fbe5df;
+    }
+    @page { size: A4 portrait; margin: 12mm 11mm 14mm; }
+    * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     body {
-      font-family: Arial, sans-serif;
-      font-size: 12px;
-      margin: 20px;
-      color: #1e293b;
-      position: relative;
+      margin: 0; padding: 22px 26px;
+      font-family: 'DM Sans', 'Segoe UI', Arial, sans-serif;
+      font-size: 11px; line-height: 1.45; color: var(--ink); background: #fff;
+    }
+    @media print { body { padding: 0; } }
+
+    .stripe {
+      height: 5px; border-radius: 3px; margin-bottom: 18px;
+      background: linear-gradient(90deg, #2463a6 0 45%, #127d77 45% 70%, #7354a5 70% 86%, #a56b13 86%);
     }
 
-    /* WATERMARK */
-    body::before {
-      content: "Tematik Kawasan";
-      position: fixed;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%) rotate(-45deg);
-      font-size: 100px;
-      font-weight: bold;
-      color: rgba(0,0,0,0.05);
-      z-index: -1;
-      white-space: nowrap;
-      pointer-events: none;
-    }
+    /* HEADER */
+    .head { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px;
+            padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-icon { width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center;
+                  background: linear-gradient(135deg, #2463a6 0%, #127d77 100%); color: #fff; }
+    .brand-icon svg { width: 21px; height: 21px; }
+    .eyebrow { font-size: 9px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--teal); }
+    h1 { margin: 2px 0 0; font-family: 'Fraunces', Georgia, serif; font-size: 22px; font-weight: 700;
+         letter-spacing: -.01em; color: var(--ink); }
+    .sub { color: var(--muted); font-size: 11px; }
+    .meta { text-align: right; font-size: 10.5px; color: var(--muted); line-height: 1.6; }
+    .meta b { color: var(--ink); font-weight: 600; }
 
-    h2, h3 { text-align: center; margin: 4px 0; }
+    /* SUMMARY */
+    .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 16px 0 6px; }
+    .card { border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; position: relative; overflow: hidden; }
+    .card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--c); }
+    .card .lbl { font-size: 9.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+    .card .num { font-family: 'Fraunces', Georgia, serif; font-size: 26px; font-weight: 700; color: var(--c); line-height: 1.15; }
+    .card .hint { font-size: 10px; color: var(--muted); }
 
-    .meta-box {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin: 10px 0 16px 0;
-      font-size: 12px;
-    }
+    /* SECTION */
+    .section { margin-top: 20px; }
+    .section-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--c); }
+    .section-head h2 { margin: 0; font-size: 13px; font-weight: 700; }
+    .count { font-size: 10px; font-weight: 600; padding: 2px 9px; border-radius: 999px; background: var(--cw); color: var(--c); }
 
-    .summary-box {
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-      margin-bottom: 16px;
-    }
+    /* TABLE */
+    table { width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+    thead { display: table-header-group; }
+    th { background: var(--wash); color: var(--muted); font-size: 9.5px; font-weight: 700; letter-spacing: .06em;
+         text-transform: uppercase; text-align: left; padding: 8px 9px; border-bottom: 1px solid var(--line); }
+    td { padding: 9px; vertical-align: top; border-bottom: 1px solid #e8eef3; }
+    tbody tr:last-child td { border-bottom: none; }
+    tr { page-break-inside: avoid; break-inside: avoid; }
+    .c-no { color: var(--muted); text-align: center; }
+    .c-id { font-weight: 700; color: var(--blue); white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .perusahaan { font-weight: 600; }
+    .pemohon { color: var(--muted); font-size: 10px; margin-top: 1px; }
+    .empty { text-align: center; color: var(--muted); padding: 16px; }
 
-    .summary-card {
-      border: 1.5px solid #e2e8f0;
-      border-radius: 10px;
-      padding: 10px 22px;
-      text-align: center;
-    }
+    .prog { display: flex; align-items: center; gap: 6px; padding-top: 3px; }
+    .prog-bar { flex: 1; height: 6px; background: #e7edf2; border-radius: 999px; overflow: hidden; }
+    .prog-bar span { display: block; height: 100%; border-radius: 999px; background: var(--pc); }
+    .prog-num { font-weight: 700; font-size: 10.5px; color: var(--pc); min-width: 28px; text-align: right; font-variant-numeric: tabular-nums; }
+    .prog-ok  { --pc: var(--teal); }
+    .prog-mid { --pc: var(--amber); }
+    .prog-low { --pc: var(--clay); }
 
-    .summary-card .num { font-size: 26px; font-weight: 800; }
-    .summary-card .lbl { font-size: 11px; color: #64748b; }
+    .pill { display: inline-block; font-size: 9.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
+    .pill-ok  { background: var(--teal-wash); color: var(--teal); }
+    .pill-run { background: var(--amber-wash); color: var(--amber); }
 
-    .section-title {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
-      padding: 7px 14px;
-      border-radius: 8px;
-      margin: 16px 0 8px 0;
-      font-size: 13px;
-      font-weight: 700;
-    }
+    .chips { display: flex; flex-wrap: wrap; gap: 3px 4px; }
+    .chip { display: inline-flex; gap: 4px; align-items: baseline; font-size: 9.5px; padding: 2px 7px;
+            border-radius: 6px; background: var(--red-wash); color: var(--red); white-space: nowrap; }
+    .chip b { font-weight: 700; opacity: .65; }
+    .chip-ok { background: var(--teal-wash); color: var(--teal); font-weight: 600; }
+    .chip-count { margin-top: 4px; font-size: 9.5px; color: var(--muted); }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 10px;
-    }
-
-    th {
-      background: #f8fafc;
-      padding: 8px 6px;
-      font-size: 11px;
-      font-weight: 700;
-      color: #475569;
-      border: 1px solid #e2e8f0;
-      text-align: center;
-    }
-
-    td {
-      padding: 8px 6px;
-      border: 1px solid #e2e8f0;
-      font-size: 11px;
-      vertical-align: top;
-    }
-
-    tbody tr:nth-child(odd) td { background: #f8fafc; }
-    tbody tr:hover td { background: #ede9fe; }
-
-    .footer {
-      margin-top: 30px;
-      text-align: right;
-      font-size: 11px;
-      color: #94a3b8;
-    }
-
-    @media print {
-      body::before { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
-      .no-print { display: none; }
-    }
+    .foot { margin-top: 22px; padding-top: 10px; border-top: 1px solid var(--line);
+            display: flex; justify-content: space-between; font-size: 9.5px; color: var(--muted); }
   </style>
 </head>
-<body onload="window.print()">
+<body>
 
-  <h2>LAPORAN KELENGKAPAN DOKUMEN</h2>
-  <h3>LAYANAN TEMATIK KAWASAN</h3>
-  <div style="text-align:center;color:#64748b;font-size:12px;margin-top:4px">
-    Tanggal Cetak: ${tanggalCetak}
-  </div>
+  <div class="stripe"></div>
 
-  <div class="summary-box" style="margin-top:14px">
-    <div class="summary-card">
-      <div class="num" style="color:#667eea">${data.length}</div>
-      <div class="lbl">Total Permohonan</div>
+  <div class="head">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15l2 2 4-4"/></svg>
+      </div>
+      <div>
+        <div class="eyebrow">Ruang Warkah &middot; Layanan Tematik Kawasan</div>
+        <h1>Laporan kelengkapan dokumen</h1>
+        <div class="sub">Rekap progres unggah dokumen seluruh permohonan</div>
+      </div>
     </div>
-    <div class="summary-card">
-      <div class="num" style="color:#ea580c">${proses.length}</div>
-      <div class="lbl">Sedang Proses</div>
-    </div>
-    <div class="summary-card">
-      <div class="num" style="color:#16a34a">${selesai.length}</div>
-      <div class="lbl">Selesai</div>
+    <div class="meta">
+      Tanggal cetak<br><b>${tanggalCetak}, ${jamCetak}</b><br>
+      Dicetak oleh <b>${esc(pencetak)}</b>
     </div>
   </div>
 
-  <!-- TABEL PROSES -->
-  <div class="section-title">🔄 Berkas Sedang Proses (${proses.length} berkas)</div>
-  <table>
-    <thead>
-      <tr>
-        <th style="width:30px">No</th>
-        <th style="width:90px">ID</th>
-        <th style="width:180px">Nama Perusahaan</th>
-        <th style="width:130px">Nama Pemohon</th>
-        <th style="width:100px">Progress</th>
-        <th style="width:70px">Status</th>
-        <th>Dokumen Belum Diupload</th>
-      </tr>
-    </thead>
-    <tbody>${buildRows(proses)}</tbody>
-  </table>
+  <div class="summary">
+    <div class="card" style="--c:#2463a6"><div class="lbl">Total permohonan</div><div class="num">${data.length}</div><div class="hint">berkas terdaftar</div></div>
+    <div class="card" style="--c:#a56b13"><div class="lbl">Sedang proses</div><div class="num">${proses.length}</div><div class="hint">dokumen belum lengkap</div></div>
+    <div class="card" style="--c:#127d77"><div class="lbl">Selesai</div><div class="num">${selesai.length}</div><div class="hint">dokumen lengkap 100%</div></div>
+    <div class="card" style="--c:#7354a5"><div class="lbl">Rata-rata progres</div><div class="num">${rataPct}%</div><div class="hint">seluruh permohonan</div></div>
+  </div>
 
-  <!-- TABEL SELESAI -->
-  <div class="section-title">✅ Berkas Selesai (${selesai.length} berkas)</div>
-  <table>
-    <thead>
-      <tr>
-        <th style="width:30px">No</th>
-        <th style="width:90px">ID</th>
-        <th style="width:180px">Nama Perusahaan</th>
-        <th style="width:130px">Nama Pemohon</th>
-        <th style="width:100px">Progress</th>
-        <th style="width:70px">Status</th>
-        <th>Dokumen Belum Diupload</th>
-      </tr>
-    </thead>
-    <tbody>${buildRows(selesai)}</tbody>
-  </table>
+  <div class="section" style="--c:#a56b13;--cw:#fdefcf">
+    <div class="section-head"><span class="dot"></span><h2>Berkas sedang proses</h2><span class="count">${proses.length} berkas</span></div>
+    <table>${thead}<tbody>${buildRows(proses)}</tbody></table>
+  </div>
 
-  <div class="footer">Dicetak dari Sistem Manajemen Warkah Layanan Tematik Kawasan</div>
+  <div class="section" style="--c:#127d77;--cw:#dcf3ed">
+    <div class="section-head"><span class="dot"></span><h2>Berkas selesai</h2><span class="count">${selesai.length} berkas</span></div>
+    <table>${thead}<tbody>${buildRows(selesai)}</tbody></table>
+  </div>
 
+  <div class="foot">
+    <span>Dicetak dari Ruang Warkah &mdash; Sistem Manajemen Warkah Layanan Tematik Kawasan</span>
+    <span>Direktorat Survei dan Pemetaan Tematik</span>
+  </div>
+
+  <script>
+    (document.fonts ? document.fonts.ready : Promise.resolve())
+      .then(() => setTimeout(() => window.print(), 300));
+  <\/script>
 </body>
 </html>`;
-
       const win = window.open('', '_blank');
       win.document.write(html);
       win.document.close();
