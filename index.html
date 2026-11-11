@@ -3628,10 +3628,9 @@ canvas {
         <h2 id="dashboard" class="page-title">Dashboard warkah</h2>
         <p class="page-intro" id="pageIntro">Pantau permohonan, kelengkapan dokumen, dan jatuh tempo warkah dalam satu ruang kerja.</p>
       </div>
-      
-      <div id="greeting" class="greeting"></div>
 
       <div class="page-head-side">
+        <div id="greeting" class="greeting"></div>
         <div id="todayDate" class="today-date"></div>
 
         <!-- USER MENU -->
@@ -4397,6 +4396,7 @@ function login() {
       showApp();
       startIdleTimer();
       updateTodayDate();
+      updateGreeting();
       applyRoleUI();
       loadDashboard();
 
@@ -4477,6 +4477,8 @@ function autoLogin() {
 
   showApp();
   startIdleTimer();
+  updateTodayDate();
+  updateGreeting();
   loadDashboard();
 }
 
