@@ -5734,7 +5734,13 @@ let idleSeconds = IDLE_LIMIT;
 let idleInterval = null;
 
 let idleDeadline = 0;
-
+  
+function stopIdleTimer() {
+  if (idleInterval) {
+    clearInterval(idleInterval);
+    idleInterval = null;
+  }
+}
 function startIdleTimer() {
   stopIdleTimer();
   resetIdleTimer();
