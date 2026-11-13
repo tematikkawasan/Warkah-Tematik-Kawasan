@@ -6910,7 +6910,7 @@ loadNotif(false);
       .withSuccessHandler(function(list){ activityData=list||[]; renderActivity(); })
       .withFailureHandler(function(err){
         var b=document.getElementById('notifActivity');
-        if(b) b.innerHTML='<div class="notif-empty">Log aktivitas gagal dimuat.</div>';
+       if(b) b.innerHTML='<div class="notif-empty">Log aktivitas gagal dimuat.<br><small style="color:#F2553A">'+esc((err&&err.message)||err)+'</small></div>';
         console.warn('Log aktivitas gagal:', err&&err.message);
       })
       .getActivityLog(100);
