@@ -9245,5 +9245,207 @@ input:focus, select:focus, textarea:focus, .field:focus {
   .sb-note, .sb-foot { flex-shrink: 0; }
 }
 </style>
+
+<!-- =====================================================================
+     RUANG WARKAH — TEMA VIVID (tile warna-warni)
+     Ditaruh PALING AKHIR agar menimpa tema sebelumnya.
+     Hapus blok ini untuk kembali ke tema lama.
+     ===================================================================== -->
+<style id="rw-vivid">
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --v-purple:#8B5CF6; --v-indigo:#5B2EE8; --v-orange:#F5822A; --v-red:#F2553A;
+  --v-pink:#F07BC0;   --v-teal:#2F96A8;   --v-green:#3DB36B;  --v-lime:#8BD45E;
+  --v-sky:#3FA9F5;    --v-yellow:#FBC64A; --v-navy:#1426A8;   --v-cyan:#6FD6E6;
+  --ink:#111827; --muted:#6B7280; --line:#ECEEF3;
+  --font-body:'Poppins','Segoe UI',Arial,sans-serif;
+  --font-display:'Poppins','Segoe UI',Arial,sans-serif;
+  --primary:#5B2EE8; --blue:#5B2EE8;
+}
+
+/* ---------- dasar ---------- */
+body {
+  font-family: var(--font-body) !important;
+  background: #F7F8FB !important;
+  color: var(--ink) !important;
+}
+body::before {
+  background: linear-gradient(90deg,#8B5CF6 0 16%,#F5822A 16% 32%,#F2553A 32% 48%,#F07BC0 48% 64%,#3FA9F5 64% 80%,#3DB36B 80%) !important;
+}
+.display, h1, h2, h3, .page-title, .section-title, .list-title {
+  font-family: var(--font-display) !important;
+  letter-spacing: -.01em !important;
+}
+.page-title { font-weight: 800 !important; color: var(--ink) !important; }
+.section-title, .list-title { font-weight: 700 !important; color: var(--ink) !important; }
+.page-eyebrow { color: var(--v-indigo) !important; }
+.page-intro, .section-copy, .list-count { color: var(--muted) !important; }
+
+/* ---------- sidebar ---------- */
+.sb-side {
+  background: #fff !important;
+  border-color: var(--line) !important;
+  box-shadow: 0 10px 30px rgba(17,24,39,.06) !important;
+}
+.sb-brand-icon { background: var(--v-indigo) !important; box-shadow: 0 8px 18px rgba(91,46,232,.35) !important; }
+.sb-brand-text b { font-family: var(--font-display) !important; font-weight: 700 !important; }
+
+.sb-nav > :nth-child(1) { --c:#8B5CF6; --cbg:#F1EBFF; --ct:#5B2EE8; }
+.sb-nav > :nth-child(2) { --c:#F5822A; --cbg:#FFF0E3; --ct:#B4540C; }
+.sb-nav > :nth-child(3) { --c:#3FA9F5; --cbg:#E6F4FE; --ct:#14699F; }
+.sb-nav > :nth-child(4) { --c:#3DB36B; --cbg:#E4F6EA; --ct:#1E7A43; }
+.sb-nav > :nth-child(5) { --c:#F2553A; --cbg:#FDE8E4; --ct:#B42F18; }
+.sb-nav > :nth-child(6) { --c:#F07BC0; --cbg:#FDEBF5; --ct:#A8337A; }
+
+.sb-nav .sb-item .sb-icon {
+  background: var(--c, #8B5CF6) !important;
+  color: #fff !important;
+  border-radius: 10px !important;
+  box-shadow: 0 6px 14px -4px var(--c, #8B5CF6);
+}
+.sb-nav .sb-item .sb-icon svg { stroke: #fff !important; color:#fff !important; }
+.sb-item { font-weight: 500 !important; color: #374151 !important; }
+.sb-nav .sb-item:hover { background: var(--cbg, #F3F4F6) !important; }
+.sb-nav .sb-item.active {
+  background: var(--cbg, #F1EBFF) !important;
+  color: var(--ct, #5B2EE8) !important;
+  font-weight: 600 !important;
+  box-shadow: inset 4px 0 0 var(--c, #8B5CF6) !important;
+  border-left-color: transparent !important;
+}
+
+/* ---------- header kanan ---------- */
+.greeting { font-weight: 600 !important; color: var(--ink) !important; }
+.today-date { background: #FFF4D6 !important; border-color: #FBC64A !important; color: #8A5A00 !important; font-weight: 600; }
+.user-avatar { background: var(--v-indigo) !important; }
+.notif-bell svg { stroke: var(--v-indigo) !important; }
+
+/* ---------- tombol ---------- */
+button.primary {
+  background: var(--v-indigo) !important;
+  border-color: var(--v-indigo) !important;
+  color: #fff !important;
+  border-radius: 12px !important;
+  font-family: var(--font-body) !important;
+  font-weight: 600 !important;
+  box-shadow: 0 10px 20px -8px rgba(91,46,232,.6) !important;
+}
+button.primary:hover { background: #4A1FD4 !important; }
+button.secondary {
+  border-radius: 12px !important;
+  border-color: #DCD6FA !important;
+  color: var(--v-indigo) !important;
+  font-family: var(--font-body) !important;
+  font-weight: 600 !important;
+  background: #fff !important;
+}
+button.secondary:hover { background: #F3EFFF !important; }
+
+/* ---------- kartu statistik = tile warna solid ---------- */
+.dashboard-stats { gap: 16px !important; }
+.dashboard-stats .card.metric-card,
+.metric-card {
+  --tile: var(--v-purple);
+  background: var(--tile) !important;
+  border: none !important;
+  border-left: none !important;
+  border-radius: 18px !important;
+  min-height: 150px;
+  padding: 16px 18px !important;
+  color: #fff !important;
+  overflow: hidden;
+  box-shadow: 0 14px 28px -14px var(--tile) !important;
+}
+.dashboard-stats .card.metric-card.is-amber  { --tile: var(--v-orange); background: var(--v-orange) !important; }
+.dashboard-stats .card.metric-card.is-violet { --tile: var(--v-green);  background: var(--v-green)  !important; }
+.dashboard-stats .card.metric-card.is-teal   { --tile: var(--v-red);    background: var(--v-red)    !important; }
+.dashboard-stats .card.metric-card.is-clay   { --tile: var(--v-sky);    background: var(--v-sky)    !important; }
+
+.dashboard-stats .metric-card .metric-label {
+  color: #fff !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  line-height: 1.25 !important;
+  max-width: 70%;
+  min-height: 0 !important;
+}
+.dashboard-stats .card.metric-card .metric-value {
+  position: relative; z-index: 2;
+  color: #fff !important;
+  font-family: var(--font-display) !important;
+  font-weight: 800 !important;
+  font-size: 40px !important;
+  margin-top: 14px !important;
+}
+/* lingkaran dekorasi */
+.metric-card::before {
+  content: '';
+  position: absolute; right: -26px; bottom: -34px;
+  width: 120px; height: 120px; border-radius: 50%;
+  background: rgba(255,255,255,.18);
+  pointer-events: none;
+}
+/* ikon besar */
+.metric-card::after {
+  content: '' !important;
+  position: absolute !important;
+  right: 12px !important; bottom: 10px !important; top: auto !important;
+  width: 74px !important; height: 74px !important;
+  border-radius: 0 !important;
+  opacity: .95 !important;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/%3E%3Cpath d='M3 10h18'/%3E%3C/svg%3E") center / contain no-repeat !important;
+  transform: rotate(-8deg);
+  pointer-events: none;
+}
+.metric-card.is-amber::after  { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 2h12M6 22h12'/%3E%3Cpath d='M7 2v4a5 5 0 0 0 10 0V2M7 22v-4a5 5 0 0 1 10 0v4'/%3E%3C/svg%3E") !important; }
+.metric-card.is-violet::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M8 12.5l2.6 2.6L16 9.5'/%3E%3C/svg%3E") !important; }
+.metric-card.is-teal::after   { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='13' r='8'/%3E%3Cpath d='M12 9v4l2.5 2.5M5 3 2 6M22 6l-3-3'/%3E%3C/svg%3E") !important; }
+.metric-card.is-clay::after   { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 12A9 9 0 1 1 12 3v9z'/%3E%3Cpath d='M15 3.5A9 9 0 0 1 20.5 9H15z'/%3E%3C/svg%3E") !important; }
+.metric-card:hover { transform: translateY(-4px) !important; }
+
+/* ---------- kartu & panel ---------- */
+.paper, .list-card, .preview-card, .search-card, .result-card, .sbx-card {
+  background: #fff !important;
+  border: 1px solid var(--line) !important;
+  border-top: 1px solid var(--line) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 10px 30px rgba(17,24,39,.05) !important;
+}
+.list-head, .preview-card .list-head { background: #fff !important; border-bottom-color: var(--line) !important; }
+.filter-bar { background: #FAFAFC !important; border-bottom-color: var(--line) !important; }
+
+.flow-note {
+  background: var(--v-indigo) !important;
+  border: none !important;
+  border-left: none !important;
+  color: #fff !important;
+  position: relative; overflow: hidden;
+}
+.flow-note::after {
+  content: ''; position: absolute; right: -40px; top: -40px;
+  width: 180px; height: 180px; border-radius: 50%;
+  background: rgba(255,255,255,.12);
+}
+.flow-note h2 { color: #fff !important; font-weight: 700 !important; }
+.flow-note p  { color: rgba(255,255,255,.88) !important; }
+
+/* ---------- tabel ---------- */
+.table-berkas th, .result-table th {
+  background: #F4F2FF !important;
+  color: #4B3AA8 !important;
+  font-family: var(--font-body) !important;
+  font-weight: 600 !important;
+}
+.table-berkas tbody tr:nth-child(even) td { background: #FCFCFE !important; }
+.table-berkas tbody tr:hover td { background: #F6F3FF !important; }
+.table-berkas .cell-id { color: var(--v-indigo) !important; font-weight: 600; }
+.status-selesai { background: #E4F6EA !important; color: #1E7A43 !important; }
+.status-proses  { background: #FFF0E3 !important; color: #B4540C !important; }
+.sbx-badge { background: var(--v-indigo) !important; box-shadow: 0 8px 18px rgba(91,46,232,.3) !important; }
+</style>
+
 </body>
 </html>
