@@ -3119,12 +3119,13 @@ canvas {
 <script>
 (function () {
   var CHART_SRC = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
-  var FONT = "'Plus Jakarta Sans', 'Segoe UI', sans-serif";
+  var FONT = "'Poppins', 'Segoe UI', sans-serif";
 
-  var LIGHT = { late:'#f6d5cf', today:'#f8e3c1', soon:'#f7ecc9', ok:'#cfe1f2', done:'#cfe8e4', none:'#e9eff4' };
-  var BASE  = { late:'#c75b45', today:'#c98a2e', soon:'#c2a23a', ok:'#2463a6', done:'#127d77', none:'#b9c8d4' };
-  var SUM_BASE  = ['#2463a6', '#a56b13', '#127d77'];
-  var SUM_LIGHT = ['#cfe0f0', '#f3e3c3', '#cbe8e5'];
+  /* warna tema vivid */
+  var LIGHT = { late:'#FCD3CB', today:'#FDDDC2', soon:'#FDEBB8', ok:'#DCCFFD', done:'#C9EDD6', none:'#E5E7EB' };
+  var BASE  = { late:'#F2553A', today:'#F5822A', soon:'#F2B21B', ok:'#8B5CF6', done:'#3DB36B', none:'#B8BEC9' };
+  var SUM_BASE  = ['#8B5CF6', '#F5822A', '#3DB36B'];
+  var SUM_LIGHT = ['#DCCFFD', '#FDDDC2', '#C9EDD6'];
 
   var summaryChart = null, barsChart = null;
 
@@ -3132,7 +3133,7 @@ canvas {
     if (document.getElementById('sbxFont')) return;
     var l = document.createElement('link');
     l.id = 'sbxFont'; l.rel = 'stylesheet';
-    l.href = 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap';
+    l.href = 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap';
     document.head.appendChild(l);
   }
 
@@ -3209,11 +3210,11 @@ canvas {
       '<h4 class="sbx-subhead">Progress per berkas</h4>' +
       '<p class="sbx-hint">Klik nama perusahaan pada grafik untuk membuka berkasnya.</p>' +
       '<div class="sbx-legend">' +
-        '<span><i style="background:#c75b45"></i>Lewat tempo</span>' +
-        '<span><i style="background:#c98a2e"></i>Jatuh tempo hari ini</span>' +
-        '<span><i style="background:#c2a23a"></i>Mendekati (&le;5 hari kerja)</span>' +
-        '<span><i style="background:#2463a6"></i>Aman</span>' +
-        '<span><i style="background:#127d77"></i>Selesai</span>' +
+        '<span><i style="background:#F2553A"></i>Lewat tempo</span>' +
+        '<span><i style="background:#F5822A"></i>Jatuh tempo hari ini</span>' +
+        '<span><i style="background:#F2B21B"></i>Mendekati (&le;5 hari kerja)</span>' +
+        '<span><i style="background:#8B5CF6"></i>Aman</span>' +
+        '<span><i style="background:#3DB36B"></i>Selesai</span>' +
       '</div>' +
       '<div style="position:relative;height:300px" id="sbBarsBox"><canvas id="sbBars"></canvas></div>';
 
@@ -3277,7 +3278,7 @@ canvas {
           var ctx = chart.ctx;
           chart.getDatasetMeta(0).data.forEach(function (bar, i) {
             var v = chart.data.datasets[0].data[i];
-            ctx.save(); ctx.fillStyle = '#17263a'; ctx.font = '700 16px ' + FONT;
+            ctx.save(); ctx.fillStyle = '#111827'; ctx.font = '700 16px ' + FONT;
             ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
             ctx.fillText(v, bar.x, bar.y - 8); ctx.restore();
           });
@@ -3374,7 +3375,7 @@ canvas {
           var ctx = chart.ctx;
           chart.getDatasetMeta(0).data.forEach(function (bar, i) {
             var v = chart.data.datasets[0].data[i];
-            ctx.save(); ctx.fillStyle = '#58677a'; ctx.font = '700 11.5px ' + FONT; ctx.textBaseline = 'middle';
+            ctx.save(); ctx.fillStyle = '#374151'; ctx.font = '700 11.5px ' + FONT; ctx.textBaseline = 'middle';
             ctx.fillText(v + '%', bar.x + 8, bar.y); ctx.restore();
           });
         }
@@ -6790,7 +6791,15 @@ function hitungHariKerja(dari, sampai) {
 
     var panel=document.createElement('div');
     panel.className='notif-panel hidden'; panel.id='notifPanel';
-    panel.innerHTML='<div class="notif-panel-head">Notifikasi<span class="notif-refresh" title="Muat ulang">\u27F3</span></div><div id="notifContent"></div>';
+    panel.innerHTML='<div class="notif-panel-head">Notifikasi<span class="notif-refresh" title="Muat ulang">\u27F3</span></div>'+
+      '<div class="notif-tabs">'+
+        '<button type="button" class="notif-tab active" data-tab="tempo">Jatuh tempo <span id="notifTabTempo"></span></button>'+
+        '<button type="button" class="notif-tab" data-tab="aktivitas">Log aktivitas <span id="notifTabAkt"></span></button>'+
+      '</div>'+
+      '<div id="notifContent"></div><div id="notifActivity" style="display:none"></div>';
+    panel.querySelectorAll('.notif-tab').forEach(function(t){
+      t.addEventListener('click', function(e){ e.stopPropagation(); switchNotifTab(t.getAttribute('data-tab')); });
+    });
     panel.querySelector('.notif-refresh').addEventListener('click', function(e){ e.stopPropagation(); loadNotif(true); });
 
     var trigger = menu.querySelector('.user-trigger');
@@ -6878,7 +6887,75 @@ loadNotif(false);
       .withSuccessHandler(function(list){ buildNotif(list||[], showRing); })
       .withFailureHandler(function(err){ console.warn('Notif gagal:', err&&err.message); })
       .getBerkasByStatus('all');
+    loadActivity();
   };
+
+  /* ====== TAB ====== */
+  window.switchNotifTab=function(tab){
+    document.querySelectorAll('#notifPanel .notif-tab').forEach(function(t){
+      t.classList.toggle('active', t.getAttribute('data-tab')===tab);
+    });
+    var a=document.getElementById('notifContent'), b=document.getElementById('notifActivity');
+    if(a) a.style.display = tab==='tempo' ? '' : 'none';
+    if(b) b.style.display = tab==='aktivitas' ? '' : 'none';
+    var p=document.getElementById('notifPanel'); if(p) p.scrollTop=0;
+  };
+
+  /* ====== LOG AKTIVITAS ====== */
+  var activityData=null;
+  function loadActivity(){
+    var box=document.getElementById('notifActivity');
+    if(box && activityData===null) box.innerHTML='<div class="notif-empty">Memuat aktivitas\u2026</div>';
+    google.script.run
+      .withSuccessHandler(function(list){ activityData=list||[]; renderActivity(); })
+      .withFailureHandler(function(err){
+        var b=document.getElementById('notifActivity');
+        if(b) b.innerHTML='<div class="notif-empty">Log aktivitas gagal dimuat.</div>';
+        console.warn('Log aktivitas gagal:', err&&err.message);
+      })
+      .getActivityLog(100);
+  }
+
+  var AKSI={
+    CREATE:          {ic:'+',  c:'add',   f:function(k){ return 'menambahkan berkas baru'; }},
+    UPDATE:          {ic:'\u270E', c:'edit',  f:function(k){ return 'memperbarui berkas'; }},
+    DELETE:          {ic:'\u2715', c:'del',   f:function(k){ return 'menghapus berkas'; }},
+    DELETE_FILE:     {ic:'\u2715', c:'del',   f:function(k){ return 'menghapus file <b>'+esc(k.replace(/^Hapus file\s*/i,''))+'</b>'; }},
+    VALIDATE_FILE:   {ic:'\u2713', c:'ok',    f:function(k){ return 'memvalidasi dokumen <b>'+esc(k.replace(/\s*tervalidasi$/i,''))+'</b>'; }},
+    UNVALIDATE_FILE: {ic:'\u21BA', c:'warn',  f:function(k){ return 'membuka kembali validasi <b>'+esc(k.replace(/\s*dibuka kembali$/i,''))+'</b>'; }},
+    GENERATE_BAST:   {ic:'\u2399', c:'doc',   f:function(k){ return 'membuat <b>BAST</b>'; }},
+    GENERATE_BAPP:   {ic:'\u2399', c:'doc',   f:function(k){ return 'membuat <b>BAPP</b>'; }}
+  };
+
+  function waktuRelatif(iso){
+    var d=new Date(iso); if(isNaN(d)) return '';
+    var dt=(Date.now()-d.getTime())/1000;
+    if(dt<60) return 'baru saja';
+    if(dt<3600) return Math.floor(dt/60)+' menit lalu';
+    if(dt<86400) return Math.floor(dt/3600)+' jam lalu';
+    if(dt<172800) return 'kemarin, '+d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+    return d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})+', '+d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+  }
+
+  function renderActivity(){
+    var box=document.getElementById('notifActivity'); if(!box) return;
+    var cnt=document.getElementById('notifTabAkt'); if(cnt) cnt.innerText=activityData.length?activityData.length:'';
+    if(!activityData.length){ box.innerHTML='<div class="notif-empty">Belum ada aktivitas.</div>'; return; }
+    box.innerHTML=activityData.map(function(a){
+      var m=AKSI[a.aksi]||{ic:'\u2022',c:'edit',f:function(k){ return esc(k); }};
+      var detail=(a.aksi==='UPDATE' && a.ket && a.ket!=='Update tanpa perubahan')
+        ? '<span class="act-detail">'+esc(a.ket.length>90?a.ket.slice(0,90)+'\u2026':a.ket)+'</span>' : '';
+      var berkas=a.id && a.id!=='-' ? '<span class="act-berkas">'+esc(a.id)+(a.perusahaan?' \u00B7 '+esc(a.perusahaan):'')+'</span>' : '';
+      var klik=(a.id && a.id!=='-' && a.aksi!=='DELETE') ? ' onclick="notifOpen(\''+esc(a.id)+'\')"' : '';
+      return '<div class="notif-item act-item"'+klik+'>'+
+        '<span class="act-ic '+m.c+'">'+m.ic+'</span>'+
+        '<div class="notif-body">'+
+          '<div class="act-text"><b class="act-user">'+esc(a.nama)+'</b> '+m.f(a.ket)+'</div>'+
+          berkas+detail+
+          '<span class="act-time">'+waktuRelatif(a.waktu)+'</span>'+
+        '</div></div>';
+    }).join('');
+  }
 
   function buildNotif(list, showRing){
     var penting=[], lainnya=[];
@@ -6892,6 +6969,7 @@ loadNotif(false);
     penting.sort(function(a,b){ return order[a.kat]-order[b.kat]; });
     notifData={penting:penting, lainnya:lainnya};
     renderNotif();
+    var tc=document.getElementById('notifTabTempo'); if(tc) tc.innerText=penting.length?penting.length:'';
 
     var badge=document.getElementById('notifBadge');
     if(badge){
@@ -9445,6 +9523,64 @@ button.secondary:hover { background: #F3EFFF !important; }
 .status-selesai { background: #E4F6EA !important; color: #1E7A43 !important; }
 .status-proses  { background: #FFF0E3 !important; color: #B4540C !important; }
 .sbx-badge { background: var(--v-indigo) !important; box-shadow: 0 8px 18px rgba(91,46,232,.3) !important; }
+
+/* ---------- panel notifikasi + log aktivitas ---------- */
+#notifPanel.notif-panel {
+  width: 400px !important;
+  max-height: 72vh !important;
+  overflow-y: auto !important;
+  border-radius: 18px !important;
+  border: 1px solid var(--line) !important;
+  box-shadow: 0 24px 60px rgba(17,24,39,.18) !important;
+  font-family: var(--font-body) !important;
+  overscroll-behavior: contain;
+}
+#notifPanel::-webkit-scrollbar { width: 6px; }
+#notifPanel::-webkit-scrollbar-thumb { background: #D9D3F7; border-radius: 3px; }
+#notifPanel .notif-panel-head { background: var(--v-indigo) !important; color: #fff !important; font-family: var(--font-body) !important; }
+#notifPanel .notif-tabs {
+  position: sticky; top: 48px; z-index: 2;
+  display: flex; gap: 6px; padding: 10px 14px;
+  background: #fff; border-bottom: 1px solid var(--line);
+}
+#notifPanel .notif-tab {
+  flex: 1; border: none; cursor: pointer;
+  padding: 8px 10px; border-radius: 10px;
+  font: 600 12.5px var(--font-body); color: #6B7280; background: #F3F4F6;
+}
+#notifPanel .notif-tab.active { background: #F1EBFF; color: var(--v-indigo); }
+#notifPanel .notif-tab span:not(:empty) {
+  display: inline-block; min-width: 18px; padding: 0 6px; margin-left: 4px;
+  border-radius: 999px; font-size: 10.5px; line-height: 18px;
+}
+#notifPanel .notif-tab.active span:not(:empty) { background: var(--v-indigo); color: #fff; }
+#notifPanel .notif-tab:not(.active) span:not(:empty) { background: #9CA3AF; color: #fff; }
+
+#notifPanel .notif-dot.late  { background: var(--v-red) !important; }
+#notifPanel .notif-dot.today { background: var(--v-orange) !important; }
+#notifPanel .notif-dot.soon  { background: #F2B21B !important; }
+#notifPanel .notif-dot.ok    { background: var(--v-purple) !important; }
+#notifPanel .notif-item:hover { background: #F8F6FF !important; }
+
+.act-item { cursor: default; }
+.act-item[onclick] { cursor: pointer; }
+.act-ic {
+  width: 30px; height: 30px; flex-shrink: 0; border-radius: 10px;
+  display: grid; place-items: center; color: #fff; font-size: 14px; font-weight: 700;
+}
+.act-ic.add  { background: var(--v-purple); }
+.act-ic.edit { background: var(--v-sky); }
+.act-ic.del  { background: var(--v-red); }
+.act-ic.ok   { background: var(--v-green); }
+.act-ic.warn { background: var(--v-orange); }
+.act-ic.doc  { background: var(--v-pink); }
+.act-text { font-size: 13px; color: #374151; line-height: 1.4; }
+#notifPanel .act-text b { display: inline !important; font-size: 13px !important; font-weight: 600 !important; color: #111827 !important; }
+#notifPanel .notif-refresh { color: #fff !important; opacity: .9; }
+#notifPanel .act-text .act-user { color: var(--v-indigo) !important; }
+#notifPanel .act-berkas { display: block; font-size: 11.5px; color: #6B7280; margin-top: 2px; }
+#notifPanel .act-detail { display: block; font-size: 11px; color: #9CA3AF; margin-top: 2px; }
+#notifPanel .act-time { display: block; font-size: 11px; color: #9CA3AF; margin-top: 3px; }
 </style>
 
 </body>
