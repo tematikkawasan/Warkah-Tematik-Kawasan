@@ -2913,6 +2913,9 @@ canvas {
         '<div class="sb-item" data-view="infografis" onclick="sbNav(\'infografis\',\'Infografis kawasan\'); if(window.sbShowInfografis)sbShowInfografis();">' +
           '<span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 8 3 16 6 23 3 23 18 16 21 8 18 1 21"/><line x1="8" y1="3" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="21"/></svg></span>' +
           '<span class="sb-label">Infografis Kawasan</span></div>' +
+        '<div class="sb-item" onclick="window.open(\'https://script.google.com/macros/s/AKfycbzq88lZvXmLAH6MHAR9RHXRKzJjWCJC_foOu8JbLf5CGvdJ4Dt0rW3tARthcEnWNdFj/exec\',\'_blank\',\'noopener\')" title="Buka di tab baru">' +
+          '<span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></span>' +
+          '<span class="sb-label">Sebaran Peta Tematik Kawasan</span></div>' +
         '<div class="sb-group" id="sbGrpEntri">' +
           '<div class="sb-item" onclick="if(window.innerWidth<=1150){sbGoForm(null,\'Data Pemohon\');}else{sbToggleGroup(\'sbGrpEntri\');}">' +
             '<span class="sb-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg></span>' +
@@ -6910,7 +6913,7 @@ loadNotif(false);
       .withSuccessHandler(function(list){ activityData=list||[]; renderActivity(); })
       .withFailureHandler(function(err){
         var b=document.getElementById('notifActivity');
-       if(b) b.innerHTML='<div class="notif-empty">Log aktivitas gagal dimuat.<br><small style="color:#F2553A">'+esc((err&&err.message)||err)+'</small></div>';
+        if(b) b.innerHTML='<div class="notif-empty">Log aktivitas gagal dimuat.</div>';
         console.warn('Log aktivitas gagal:', err&&err.message);
       })
       .getActivityLog(100);
@@ -9373,8 +9376,10 @@ body::before {
 .sb-nav > :nth-child(2) { --c:#F5822A; --cbg:#FFF0E3; --ct:#B4540C; }
 .sb-nav > :nth-child(3) { --c:#3FA9F5; --cbg:#E6F4FE; --ct:#14699F; }
 .sb-nav > :nth-child(4) { --c:#3DB36B; --cbg:#E4F6EA; --ct:#1E7A43; }
-.sb-nav > :nth-child(5) { --c:#F2553A; --cbg:#FDE8E4; --ct:#B42F18; }
-.sb-nav > :nth-child(6) { --c:#F07BC0; --cbg:#FDEBF5; --ct:#A8337A; }
+.sb-nav > :nth-child(5) { --c:#2F96A8; --cbg:#E2F3F6; --ct:#1D6875; }
+.sb-nav > :nth-child(6) { --c:#F2553A; --cbg:#FDE8E4; --ct:#B42F18; }
+.sb-nav > :nth-child(7) { --c:#F07BC0; --cbg:#FDEBF5; --ct:#A8337A; }
+.sb-nav .sb-item .sb-label { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; line-height: 1.3; }
 
 .sb-nav .sb-item .sb-icon {
   background: var(--c, #8B5CF6) !important;
